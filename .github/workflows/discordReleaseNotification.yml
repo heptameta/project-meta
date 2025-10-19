@@ -1,0 +1,39 @@
+name: Discord Release Notification
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  notify-discord:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Discord Notification
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          # Prepare the Discord message payload
+          RELEASE_TAG="${{ github.event.release.tag_name }}"
+          RELEASE_URL="${{ github.event.release.html_url }}"
+          RELEASE_AUTHOR="${{ github.event.release.author.login }}"
+
+          # Create Discord webhook payload
+          cat <<-EOF > payload.json
+          {
+            "username": "Electron Build",
+            "embeds": [
+              {
+                "title": "Desktop released",
+                "description": "Version: $RELEASE_TAG\nEnv: production\nReleased by: $RELEASE_AUTHOR",
+                "color": 5763719,
+                "url": "$RELEASE_URL"
+              }
+            ]
+          }
+          EOF
+
+          # Send the webhook
+          curl -H "Content-Type: application/json" \
+               -d @payload.json \
+               "$DISCORD_WEBHOOK_URL"
