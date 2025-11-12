@@ -16,7 +16,6 @@ jobs:
           # Prepare the Discord message payload
           RELEASE_TAG="${{ github.event.release.tag_name }}"
           RELEASE_URL="${{ github.event.release.html_url }}"
-          RELEASE_AUTHOR="${{ github.event.release.author.login }}"
 
           # Create Discord webhook payload
           cat <<-EOF > payload.json
@@ -25,7 +24,7 @@ jobs:
             "embeds": [
               {
                 "title": "Desktop released",
-                "description": "Version: $RELEASE_TAG\nEnv: production\nReleased by: $RELEASE_AUTHOR",
+                "description": "Version: $RELEASE_TAG\nEnv: production",
                 "color": 5763719,
                 "url": "$RELEASE_URL"
               }
