@@ -21,6 +21,7 @@ jobs:
           cat <<-EOF > payload.json
           {
             "username": "Electron Build",
+            "avatar_url": "https://play-lh.googleusercontent.com/dZO52SVjuYWbL9FChAxspoqpx6yyYJptDR_drNBDB5OZlVEkoAXh3fRbbtQ2QjYl2BY=w240-h480-rw",
             "embeds": [
               {
                 "title": "Desktop released",
