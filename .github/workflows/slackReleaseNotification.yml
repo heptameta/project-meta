@@ -1,0 +1,34 @@
+name: Slack Release Notification
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  notify-slack:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Slack release-published notification
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_DEPLOY_URL }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then
+            echo "SLACK_WEBHOOK_DEPLOY_URL is not configured."
+            exit 0
+          fi
+
+          message=$(printf ':rocket: *Production release published*\nVersion: `%s`\n<%s|Open release>' \
+            "$RELEASE_TAG" \
+            "$RELEASE_URL")
+
+          export SLACK_MESSAGE="$message"
+          payload=$(python3 -c 'import json, os; print(json.dumps({"text": os.environ["SLACK_MESSAGE"]}))')
+
+          curl --fail-with-body --retry 3 \
+            -H "Content-Type: application/json" \
+            -X POST \
+            -d "$payload" \
+            "$SLACK_WEBHOOK_URL"
