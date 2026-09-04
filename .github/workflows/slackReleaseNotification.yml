@@ -20,12 +20,48 @@ jobs:
             exit 0
           fi
 
-          message=$(printf ':rocket: *Production release published*\nVersion: `%s`\n<%s|Open release>' \
+          message=$(printf ':white_check_mark: *Desktop released*\nVersion: `%s`\n<%s|Open release>' \
             "$RELEASE_TAG" \
             "$RELEASE_URL")
 
           export SLACK_MESSAGE="$message"
-          payload=$(python3 -c 'import json, os; print(json.dumps({"text": os.environ["SLACK_MESSAGE"]}))')
+          payload=$(python3 -c '
+          import json
+          import os
+
+          print(json.dumps({
+              "text": os.environ["SLACK_MESSAGE"],
+              "blocks": [
+                  {
+                      "type": "card",
+                      "title": {
+                          "type": "mrkdwn",
+                          "text": ":white_check_mark: Desktop released",
+                          "verbatim": False
+                      },
+                      "subtitle": {
+                          "type": "mrkdwn",
+                          "text": os.environ["RELEASE_TAG"] + " · production",
+                          "verbatim": False
+                      },
+                      "body": {
+                          "type": "mrkdwn",
+                          "text": "<" + os.environ["RELEASE_URL"] + "|Open release>",
+                          "verbatim": False
+                      }
+                  },
+                  {
+                      "type": "context",
+                      "elements": [
+                          {
+                              "type": "mrkdwn",
+                              "text": "GitHub Actions"
+                          }
+                      ]
+                  }
+              ]
+          }))
+          ')
 
           curl --fail-with-body --retry 3 \
             -H "Content-Type: application/json" \
